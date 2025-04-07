@@ -37,20 +37,31 @@ async function sendStunRequest(stunAddress: string, stunPort: number) {
 
   return new Promise<{ port: number; ip: string | undefined }>((resolve, reject) => {
     socket.on("message", (msg) => {
-      // msgはSTUNのMAPPED-ADDRESSを含むレスポンスであるため、これをパースして送信元のIPアドレスとポートを取得する
+      // msgはSTUNのXOR-MAPPED-ADDRESSを含むレスポンスであるため、これをパースして送信元のIPアドレスとポートを取得する
       // ref: https://sublimer.hatenablog.com/entry/2021/12/12/000000
       // STUNのヘッダは20バイトのため、それ以降を抽出
       const payload = Buffer.from(msg.subarray(20));
       // portは6、7バイト目、ipは8-11バイト目に格納されている
-      const port = payload.readUInt16BE(6);
-      const ip = payload.readUInt32BE(8);
-      // IPアドレスは4バイトの整数をドット区切りの文字列に変換
-      const ipString = [(ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff].join(".");
+
+      // マジッククッキーの取得
+      const magicCookie = 0x2112A442;
+
+      // ポート番号をパース（XOR処理）
+      const xorPort = payload.readUInt16BE(6) ^ (magicCookie >> 16);
+
+      // IPアドレスをパース（XOR処理）
+      const xorIp1 = payload.readUInt8(8) ^ (magicCookie >> 24);
+      const xorIp2 = payload.readUInt8(9) ^ ((magicCookie >> 16) & 0xFF);
+      const xorIp3 = payload.readUInt8(10) ^ ((magicCookie >> 8) & 0xFF);
+      const xorIp4 = payload.readUInt8(11) ^ (magicCookie & 0xFF);
+
+      // IPアドレスを文字列として結合
+      const ip = `${xorIp1}.${xorIp2}.${xorIp3}.${xorIp4}`;
 
       socket.close();
       resolve({
-        port,
-        ip: ipString,
+        port: xorPort,
+        ip,
       });
     });
 
