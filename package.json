@@ -1,0 +1,33 @@
+{
+  "name": "stun-mcp",
+  "version": "0.0.1",
+  "description": "STUN(RFC5389)のBinding Requestを送って結果を返すMCPサーバー",
+  "main": "build/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node build/main.js",
+    "dev": "tsx src/main.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kadoshita/stun-mcp.git"
+  },
+  "keywords": [],
+  "author": "sublimer <sublimer.me@gmail.com> (https://sublimer.me/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kadoshita/stun-mcp/issues"
+  },
+  "homepage": "https://github.com/kadoshita/stun-mcp#readme",
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "zod": "^3.24.2"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0"
+  }
+}
